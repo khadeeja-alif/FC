@@ -3,7 +3,7 @@ using Microsoft.AspNetCore.Hosting;
 using Microsoft.Extensions.Configuration;
 using Microsoft.Extensions.DependencyInjection;
 using Microsoft.Extensions.Logging;
-using Microsoft.EntityFrameworkCore;
+using MySQL.Data.EntityFrameworkCore.Extensions;
 using FC.Models;
 
 namespace FC
@@ -15,7 +15,7 @@ namespace FC
             var builder = new ConfigurationBuilder()
                 .SetBasePath(env.ContentRootPath)
                 .AddJsonFile("appsettings.json", optional: false, reloadOnChange: true)
-                .AddJsonFile($"appsettings.{env.EnvironmentName}.json", optional: true)
+                .AddJsonFile("config.json", optional: true,reloadOnChange:true)
                 .AddEnvironmentVariables();
             Configuration = builder.Build();
         }
@@ -26,10 +26,19 @@ namespace FC
         public void ConfigureServices(IServiceCollection services)
         {
             // Add framework services.
-           // services.AddDbContext<UserContext>(opt => opt.UseInMemoryDatabase());
+            //services.AddDbContext<UserContext>(opt => opt.UseInMemoryDatabase());
             services.AddMvc();
-            var connection = @"Server=(localdb)\mysqllocaldb;Database=FC;Trusted_Connection=True;";
-            services.AddDbContext<UserContext>(options => options.UseSqlServer(connection));
+            var sqlConnectionString = Configuration.GetConnectionString("DataAccessMySqlProvider");
+
+            services.AddDbContext<UserContext>(options =>
+            {
+                options.UseMySQL(
+                    sqlConnectionString,
+                    b => b.MigrationsAssembly("FC")
+                );
+            });
+                
+           
         }
 
         // This method gets called by the runtime. Use this method to configure the HTTP request pipeline.

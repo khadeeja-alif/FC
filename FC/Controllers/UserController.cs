@@ -15,6 +15,7 @@ namespace FC.Controllers
         public UserController(UserContext context)
         {
             _context = context;
+          
             if(_context.Users.Count()==0)
             {
                 NoContent();
@@ -67,6 +68,7 @@ namespace FC.Controllers
             }
             gotuser.name = user.name;
             gotuser.id = user.id;
+            gotuser.present = user.present;
             gotuser.start = user.start;
             gotuser.stop=user.stop;
 
