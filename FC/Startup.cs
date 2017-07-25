@@ -1,12 +1,10 @@
-﻿using System;
-using System.Collections.Generic;
-using System.Linq;
-using System.Threading.Tasks;
-using Microsoft.AspNetCore.Builder;
+﻿using Microsoft.AspNetCore.Builder;
 using Microsoft.AspNetCore.Hosting;
 using Microsoft.Extensions.Configuration;
 using Microsoft.Extensions.DependencyInjection;
 using Microsoft.Extensions.Logging;
+using Microsoft.EntityFrameworkCore;
+using FC.Models;
 
 namespace FC
 {
@@ -28,7 +26,10 @@ namespace FC
         public void ConfigureServices(IServiceCollection services)
         {
             // Add framework services.
+           // services.AddDbContext<UserContext>(opt => opt.UseInMemoryDatabase());
             services.AddMvc();
+            var connection = @"Server=(localdb)\mysqllocaldb;Database=FC;Trusted_Connection=True;";
+            services.AddDbContext<UserContext>(options => options.UseSqlServer(connection));
         }
 
         // This method gets called by the runtime. Use this method to configure the HTTP request pipeline.
@@ -36,8 +37,16 @@ namespace FC
         {
             loggerFactory.AddConsole(Configuration.GetSection("Logging"));
             loggerFactory.AddDebug();
-
+            if(env.IsDevelopment())
+            {
+                app.UseDeveloperExceptionPage();
+            }
             app.UseMvc();
+           /* app.Run(async (context) =>
+            {
+                await context.Response.WriteAsync("Hello World!");
+            });
+            */
         }
     }
 }
