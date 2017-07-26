@@ -30,9 +30,9 @@ namespace FC
             // Add framework services.
             //services.AddDbContext<UserContext>(opt => opt.UseInMemoryDatabase());
             services.AddMvc();
-
-            //var sqlConnectionString = Configuration.GetConnectionString("DataAccessMySqlProvider");
-
+#if DEBUG
+            var sqlConnectionString = Configuration.GetConnectionString("DataAccessMySqlProvider");
+#else
             string envvariable = Environment.GetEnvironmentVariable("MYSQLCONNSTR_localdb");
             string dbhost = "";
             string dbname = "";
@@ -43,7 +43,8 @@ namespace FC
             dbusername = Regex.Replace(envvariable, "^.*User Id=(.+?);.*$", "$1");
             dbpassword = Regex.Replace(envvariable, "^.*Password=(.+?)$", "$1");
             var host = dbhost.Split(':');
-            string sqlConnectionString = "server=" + host[0] + ";port=" + host[1] + ";database=markyourday;user=" + dbusername + ";password=" + dbpassword;
+            var sqlConnectionString = "server="+host[0]+";userid="+dbusername+";password="+dbpassword+";persistsecurityinfo=true;port="+host[1]+";database=markyourday;Sslmode=none";
+#endif
             Console.WriteLine(sqlConnectionString);
             System.Diagnostics.Debug.WriteLine(sqlConnectionString);
             services.AddDbContext<UserContext>(options =>
@@ -53,8 +54,7 @@ namespace FC
                     b => b.MigrationsAssembly("FC")
                 );
             });
-                
-           
+              
         }
 
         // This method gets called by the runtime. Use this method to configure the HTTP request pipeline.
