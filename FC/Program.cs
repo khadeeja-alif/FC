@@ -18,8 +18,9 @@ namespace FC
                 .UseIISIntegration()
                 .UseStartup<Startup>()
                 .UseApplicationInsights()
+                .UseStartup<Startup>()
+                .CaptureStartupErrors(true)
                 .Build();
-
             host.Run();
         }
     }

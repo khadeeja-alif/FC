@@ -29,6 +29,12 @@ namespace FC.Controllers
             return _context.Users.ToList();
         }
 
+        [Route("haha")]
+        public string Haha()
+        {
+            return "Hell";
+        }
+
         [HttpGet("{id}",Name ="GetUser")]
         public IActionResult GetById(int id)
         {
