@@ -62,10 +62,10 @@ namespace FC
         {
             loggerFactory.AddConsole(Configuration.GetSection("Logging"));
             loggerFactory.AddDebug();
-            if(env.IsDevelopment())
-            {
+            //if(env.IsDevelopment())
+            //{
                 app.UseDeveloperExceptionPage();
-            }
+            //}
             app.UseMvc();
            /* app.Run(async (context) =>
             {
