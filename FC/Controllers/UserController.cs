@@ -56,19 +56,18 @@ namespace FC.Controllers
             }
             _context.Users.Add(user);
             _context.SaveChanges();
-           // new { id = user.id }
              return CreatedAtRoute("GetUser", new { id = user.id }, user);
         }
 
-        [HttpPut("{id}")]
-        public IActionResult Update(int id,[FromBody]User user)
+        [HttpPut("{name}")]
+        public IActionResult Update(int id,[FromBody]User user,string name)
         {
-            if(user==null||user.id!=id)
+            if(user==null||user.name!=name)
             {
                 return BadRequest();
             }
 
-            var gotuser = _context.Users.FirstOrDefault(t => t.id == id);
+            var gotuser = _context.Users.FirstOrDefault(t => t.name == name);
             if(gotuser==null)
             {
                 return NotFound();
