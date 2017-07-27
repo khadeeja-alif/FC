@@ -57,7 +57,7 @@ namespace FC.Controllers
             _context.Users.Add(user);
             _context.SaveChanges();
            // new { id = user.id }
-             return CreatedAtRoute("GetUser", user);
+             return CreatedAtRoute("GetUser", new { id = user.id }, user);
         }
 
         [HttpPut("{id}")]
