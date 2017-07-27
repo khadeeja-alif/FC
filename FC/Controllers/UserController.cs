@@ -19,6 +19,7 @@ namespace FC.Controllers
             if(_context.Users.Count()==0)
             {
                 NoContent();
+               // var res= NoContent().StatusCode.ToString();
                 _context.SaveChanges();
             }
         }
@@ -55,8 +56,8 @@ namespace FC.Controllers
             }
             _context.Users.Add(user);
             _context.SaveChanges();
-         
-             return CreatedAtRoute("GetUser", new { id = user.id }, user);
+           // new { id = user.id }
+             return CreatedAtRoute("GetUser", user);
         }
 
         [HttpPut("{id}")]
@@ -73,7 +74,6 @@ namespace FC.Controllers
                 return NotFound();
             }
             gotuser.name = user.name;
-            gotuser.id = user.id;
             gotuser.present = user.present;
             gotuser.start = user.start;
             gotuser.stop=user.stop;
