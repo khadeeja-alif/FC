@@ -60,14 +60,14 @@ namespace FC.Controllers
         }
 
         [HttpPut("{name}")]
-        public IActionResult Update(int id,[FromBody]User user,string name)
+        public IActionResult Update([FromBody]User user,string name)
         {
             if(user==null||user.name!=name)
             {
                 return BadRequest();
             }
 
-            var gotuser = _context.Users.FirstOrDefault(t => t.name == name);
+            var gotuser = _context.Users.First(t => t.name == name);
             if(gotuser==null)
             {
                 return NotFound();
