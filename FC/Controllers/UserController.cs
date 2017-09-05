@@ -34,7 +34,6 @@ namespace FC.Controllers
             }
             _context.Users.Add(user);
             _context.SaveChanges();
-            
             return new ObjectResult(new Response<User>("MB100", "Succesfully created", user));
         }
 
