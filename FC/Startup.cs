@@ -33,17 +33,17 @@ namespace FC
 #if DEBUG
             var sqlConnectionString = Configuration.GetConnectionString("DataAccessMySqlProvider");
 #else
-            string envvariable = Environment.GetEnvironmentVariable("MYSQLCONNSTR_localdb");
-            string dbhost = "";
-            string dbname = "";
-            string dbusername = "";
-            string dbpassword = "";
-            dbhost = Regex.Replace(envvariable, "^.*Data Source=(.+?);.*$", "$1");
-            dbname = Regex.Replace(envvariable, "^.*Database=(.+?);.*$", "$1");
-            dbusername = Regex.Replace(envvariable, "^.*User Id=(.+?);.*$", "$1");
-            dbpassword = Regex.Replace(envvariable, "^.*Password=(.+?)$", "$1");
-            var host = dbhost.Split(':');
-            var sqlConnectionString = "server="+host[0]+";userid="+dbusername+";password="+dbpassword+";persistsecurityinfo=true;port="+host[1]+";database=markyourday;Sslmode=none";
+              string envvariable = Environment.GetEnvironmentVariable("MYSQLCONNSTR_localdb");
+              string dbhost = "";
+              string dbname = "";
+              string dbusername = "";
+              string dbpassword = "";
+              dbhost = Regex.Replace(envvariable, "^.*Data Source=(.+?);.*$", "$1");
+              dbname = Regex.Replace(envvariable, "^.*Database=(.+?);.*$", "$1");
+              dbusername = Regex.Replace(envvariable, "^.*User Id=(.+?);.*$", "$1");
+              dbpassword = Regex.Replace(envvariable, "^.*Password=(.+?)$", "$1");
+              var host = dbhost.Split(':');
+              var sqlConnectionString = "server="+host[0]+";userid="+dbusername+";password="+dbpassword+";persistsecurityinfo=true;port="+host[1]+";database=markyourday;Sslmode=none";
 #endif
             Console.WriteLine(sqlConnectionString);
             System.Diagnostics.Debug.WriteLine(sqlConnectionString);
@@ -54,7 +54,14 @@ namespace FC
                     b => b.MigrationsAssembly("FC")
                 );
             });
-              
+            services.AddDbContext<AttendanceContext>(options =>
+            {
+                options.UseMySQL(
+                    sqlConnectionString,
+                    b => b.MigrationsAssembly("FC")
+                );
+            });
+
         }
 
         // This method gets called by the runtime. Use this method to configure the HTTP request pipeline.
