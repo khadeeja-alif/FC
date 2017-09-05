@@ -30,12 +30,12 @@ namespace FC.Controllers
         {
             if (user == null)
             {
-                return BadRequest();
+                return new ObjectResult(new Response<User>("MB400","Insufficient data",null));
             }
             _context.Users.Add(user);
             _context.SaveChanges();
-            //return new ObjectResult(_context.Users);
-            return CreatedAtRoute("GetUser", new { id = user.id }, user);
+            
+            return new ObjectResult(new Response<User>("MB100", "Succesfully created", user));
         }
 
 
@@ -57,23 +57,23 @@ namespace FC.Controllers
             var item = _context.Users.FirstOrDefault(t => t.username == username && t.password==password);
             if(item==null)
             {
-                 return NotFound();
-                //return new ObjectResult(item);
+                return new ObjectResult(new Response<User>("MA200","User not found",null));
             }
-            return new ObjectResult(item);
+            return new ObjectResult(new Response<User>("MA100","User exists",item));
         }
+
         [HttpPut("{name}")]
         public IActionResult Update([FromBody]User user,string name)
         {
             if(user==null||user.name!=name)
             {
-                return BadRequest();
+                return new ObjectResult(new Response<User>("MC200","Invalid Data",null));
             }
 
             var gotuser = _context.Users.FirstOrDefault(t => t.name == name);
             if(gotuser==null)
             {
-                return NotFound();
+                return new ObjectResult(new Response<User>("MC300", "User not found", null));
             }
             gotuser.name = user.name;
             gotuser.username = user.username;
@@ -81,7 +81,7 @@ namespace FC.Controllers
 
             _context.Users.Update(gotuser);
             _context.SaveChanges();
-            return new NoContentResult();
+            return new ObjectResult(new Response<User>("MC100", "Successfully updated", gotuser));
         }
 
         [HttpDelete("{id}")]
@@ -90,12 +90,12 @@ namespace FC.Controllers
             var gotuser= _context.Users.First(t => t.id == id);
             if(gotuser==null)
             {
-                return NotFound();
+                return new ObjectResult(new Response<User>("MD300", "No user found", null));
             }
 
             _context.Users.Remove(gotuser);
             _context.SaveChanges();
-            return new NoContentResult();
+            return new ObjectResult(new Response<User>("MD100", "Successfully deleted", null));
         }
     }
 }
