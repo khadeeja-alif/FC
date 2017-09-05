@@ -57,8 +57,8 @@ namespace FC.Controllers
             var item = _context.Users.FirstOrDefault(t => t.username == username && t.password==password);
             if(item==null)
             {
-                // return NotFound();
-                return new ObjectResult(item);
+                 return NotFound();
+                //return new ObjectResult(item);
             }
             return new ObjectResult(item);
         }
