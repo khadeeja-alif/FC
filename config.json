@@ -1,0 +1,6 @@
+﻿{
+  "ConnectionStrings": {
+    "DataAccessMySqlProvider": "server=localhost;userid=root;password=;persistsecurityinfo=true;port=3306;database=home;Sslmode=none"
+  }
+}
+}
