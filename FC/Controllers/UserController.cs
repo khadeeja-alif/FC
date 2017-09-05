@@ -24,6 +24,21 @@ namespace FC.Controllers
             }
         }
 
+
+        [HttpPost]
+        public IActionResult Create([FromBody]User user)
+        {
+            if (user == null)
+            {
+                return BadRequest();
+            }
+            _context.Users.Add(user);
+            _context.SaveChanges();
+            //return new ObjectResult(_context.Users);
+            return CreatedAtRoute("GetUser", new { id = user.id }, user);
+        }
+
+
         [HttpGet]
         public IEnumerable<User> GetAll()
         {
@@ -36,29 +51,17 @@ namespace FC.Controllers
             return "Hell";
         }
 
-        [HttpGet("{id}",Name ="GetUser")]
-        public IActionResult GetById(int id)
+        [HttpGet("{username}/{password}",Name ="GetUser")]
+        public IActionResult GetById(string username,string password)
         {
-            var item = _context.Users.FirstOrDefault(t => t.id == id);
+            var item = _context.Users.FirstOrDefault(t => t.username == username && t.password==password);
             if(item==null)
             {
-                return NotFound();
+                // return NotFound();
+                return new ObjectResult(item);
             }
             return new ObjectResult(item);
         }
-
-        [HttpPost]
-        public IActionResult Create([FromBody]User user)
-        {
-            if(user==null)
-            {
-                return BadRequest();
-            }
-            _context.Users.Add(user);
-            _context.SaveChanges();
-             return CreatedAtRoute("GetUser", new { id = user.id }, user);
-        }
-
         [HttpPut("{name}")]
         public IActionResult Update([FromBody]User user,string name)
         {
@@ -67,15 +70,14 @@ namespace FC.Controllers
                 return BadRequest();
             }
 
-            var gotuser = _context.Users.First(t => t.name == name);
+            var gotuser = _context.Users.FirstOrDefault(t => t.name == name);
             if(gotuser==null)
             {
                 return NotFound();
             }
             gotuser.name = user.name;
-            gotuser.present = user.present;
-            gotuser.start = user.start;
-            gotuser.stop=user.stop;
+            gotuser.username = user.username;
+            gotuser.password = user.password;
 
             _context.Users.Update(gotuser);
             _context.SaveChanges();

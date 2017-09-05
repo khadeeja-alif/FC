@@ -13,8 +13,8 @@ namespace FC.Models
         [Required]
         [MaxLength(20)]
         public string name { get; set; }
-        public bool present { get; set; }
-        public DateTime start { get; set; }
-        public DateTime stop { get; set; }
+        public string username { get; set; }
+        public string password { get; set; }
+        
     }
 }
