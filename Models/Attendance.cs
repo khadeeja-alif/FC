@@ -10,13 +10,13 @@ namespace FC.Models
     {
         [Key]
         public int id { get; set; }
+        public int userid { get; set; }
         public DateTime date { get; set; }
         public DateTime firstcheckin { get; set; }
         public DateTime firstcheckout { get; set; }
         public DateTime secondcheckin { get; set; }
         public DateTime secondcheckout { get; set; }
-        public string totalhours { get; set; }
-        public int count { get; set; }
+       
 
     }
 }

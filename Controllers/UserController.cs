@@ -30,12 +30,12 @@ namespace FC.Controllers
         {
             if (user == null)
             {
-                return new ObjectResult(new Response<User>("MA100", "Insufficient data", null));
+                return new ObjectResult(new Response<User>("UA100", "Insufficient data", null));
             }
             _context.Users.Add(user);
             _context.SaveChanges();
             //return new ObjectResult(_context.Users);
-            return new ObjectResult(new Response<User>("MA200", "User created successfully", user));
+            return new ObjectResult(new Response<User>("UA200", "User created successfully", user));
           //  return CreatedAtRoute("GetUser", new { id = user.id }, user);
         }
 
@@ -43,7 +43,7 @@ namespace FC.Controllers
         [HttpGet]
         public IActionResult GetAll()
         {
-            return new ObjectResult(new Response<List<User>>("MB200", "All users are loaded", _context.Users.ToList()));
+            return new ObjectResult(new Response<List<User>>("UB200", "All users are loaded", _context.Users.ToList()));
             //return _context.Users.ToList();
         }
 
@@ -53,21 +53,21 @@ namespace FC.Controllers
             return "Hell";
         }
 
-        [HttpGet("{username}/{password}",Name ="GetUser")]
-        public IActionResult GetById(string username,string password)
+        [HttpPut("authenticate")]
+        public IActionResult GetById([FromBody] User user)
         {
-            if (username == null || password == null)
+            if (user.username == null || user.password == null)
             {
-                return new ObjectResult(new Response<User>("MD100", "Insuficient data", null));
+                return new ObjectResult(new Response<User>("UC100", "Insuficient data", null));
             }
-            var item = _context.Users.FirstOrDefault(t => t.username == username && t.password==password);
+            var item = _context.Users.FirstOrDefault(t => t.username == user.username && t.password==user.password);
             if(item==null)
             {
                 // return NotFound();
-                return new ObjectResult(new Response<User>("MC300", "User not found", null));
+                return new ObjectResult(new Response<User>("UC300", "User not found", null));
             }
             //return new ObjectResult(item);
-            return new ObjectResult(new Response<User>("MC200", "User found", item));
+            return new ObjectResult(new Response<User>("UC200", "User found", item));
         }
         [HttpPut("{name}")]
         public IActionResult Update([FromBody]User user,string name)
@@ -75,18 +75,18 @@ namespace FC.Controllers
             if (user == null)
             {
                 //return BadRequest();
-                return new ObjectResult(new Response<User>("MD100", "Insufficient data", null));
+                return new ObjectResult(new Response<User>("UD100", "Insufficient data", null));
             }
             else if (user.name != name)
             {
-                return new ObjectResult(new Response<User>("MD400", "Invalid data", null));
+                return new ObjectResult(new Response<User>("UD400", "Invalid data", null));
             }
             else
             {
                 var gotuser = _context.Users.FirstOrDefault(t => t.name == name);
                 if (gotuser == null)
                 {
-                    return new ObjectResult(new Response<User>("MD300", "User not found", null));
+                    return new ObjectResult(new Response<User>("UD300", "User not found", null));
                 }
                 gotuser.name = user.name;
                 gotuser.username = user.username;
@@ -94,7 +94,7 @@ namespace FC.Controllers
 
                 _context.Users.Update(gotuser);
                 _context.SaveChanges();
-                return new ObjectResult(new Response<User>("MD200", "Successfully updated", gotuser));
+                return new ObjectResult(new Response<User>("UD200", "Successfully updated", gotuser));
             }
         }
 
@@ -104,12 +104,12 @@ namespace FC.Controllers
             var gotuser= _context.Users.First(t => t.id == id);
             if(gotuser==null)
             {
-                return new ObjectResult(new Response<User>("ME300", "User not found", null));
+                return new ObjectResult(new Response<User>("UE300", "User not found", null));
             }
 
             _context.Users.Remove(gotuser);
             _context.SaveChanges();
-            return new ObjectResult(new Response<User>("MD200", "Deletion successfull", null));
+            return new ObjectResult(new Response<User>("UE200", "Deletion successfull", null));
         }
     }
 }
