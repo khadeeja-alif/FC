@@ -34,7 +34,8 @@ namespace FC.Controllers
             return new ObjectResult(item);
         }
 
-        public IActionResult CheckIn(int id)
+
+        /*public IActionResult CheckIn(int id)
         {
             var item = _context.Attendances.FirstOrDefault(t => t.id == id && t.date==DateTime.Now);
             if (item == null)
@@ -44,7 +45,7 @@ namespace FC.Controllers
                 attendance.date = DateTime.Today;
                 
             }
-        }
+        }*/
 
         [HttpPost]
         public IActionResult NewRecord([FromBody]Attendance attendance)
