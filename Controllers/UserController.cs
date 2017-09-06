@@ -30,19 +30,21 @@ namespace FC.Controllers
         {
             if (user == null)
             {
-                return BadRequest();
+                return new ObjectResult(new Response<User>("MA100", "Insufficient data", null));
             }
             _context.Users.Add(user);
             _context.SaveChanges();
             //return new ObjectResult(_context.Users);
-            return CreatedAtRoute("GetUser", new { id = user.id }, user);
+            return new ObjectResult(new Response<User>("MA200", "User created successfully", user));
+          //  return CreatedAtRoute("GetUser", new { id = user.id }, user);
         }
 
 
         [HttpGet]
-        public IEnumerable<User> GetAll()
+        public IActionResult GetAll()
         {
-            return _context.Users.ToList();
+            return new ObjectResult(new Response<List<User>>("MB200", "All users are loaded", _context.Users.ToList()));
+            //return _context.Users.ToList();
         }
 
         [Route("haha")]
@@ -54,34 +56,46 @@ namespace FC.Controllers
         [HttpGet("{username}/{password}",Name ="GetUser")]
         public IActionResult GetById(string username,string password)
         {
+            if (username == null || password == null)
+            {
+                return new ObjectResult(new Response<User>("MD100", "Insuficient data", null));
+            }
             var item = _context.Users.FirstOrDefault(t => t.username == username && t.password==password);
             if(item==null)
             {
                 // return NotFound();
-                return new ObjectResult(item);
+                return new ObjectResult(new Response<User>("MC300", "User not found", null));
             }
-            return new ObjectResult(item);
+            //return new ObjectResult(item);
+            return new ObjectResult(new Response<User>("MC200", "User found", item));
         }
         [HttpPut("{name}")]
         public IActionResult Update([FromBody]User user,string name)
         {
-            if(user==null||user.name!=name)
+            if (user == null)
             {
-                return BadRequest();
+                //return BadRequest();
+                return new ObjectResult(new Response<User>("MD100", "Insufficient data", null));
             }
-
-            var gotuser = _context.Users.FirstOrDefault(t => t.name == name);
-            if(gotuser==null)
+            else if (user.name != name)
             {
-                return NotFound();
+                return new ObjectResult(new Response<User>("MD400", "Invalid data", null));
             }
-            gotuser.name = user.name;
-            gotuser.username = user.username;
-            gotuser.password = user.password;
+            else
+            {
+                var gotuser = _context.Users.FirstOrDefault(t => t.name == name);
+                if (gotuser == null)
+                {
+                    return new ObjectResult(new Response<User>("MD300", "User not found", null));
+                }
+                gotuser.name = user.name;
+                gotuser.username = user.username;
+                gotuser.password = user.password;
 
-            _context.Users.Update(gotuser);
-            _context.SaveChanges();
-            return new NoContentResult();
+                _context.Users.Update(gotuser);
+                _context.SaveChanges();
+                return new ObjectResult(new Response<User>("MD200", "Successfully updated", gotuser));
+            }
         }
 
         [HttpDelete("{id}")]
@@ -90,12 +104,12 @@ namespace FC.Controllers
             var gotuser= _context.Users.First(t => t.id == id);
             if(gotuser==null)
             {
-                return NotFound();
+                return new ObjectResult(new Response<User>("ME300", "User not found", null));
             }
 
             _context.Users.Remove(gotuser);
             _context.SaveChanges();
-            return new NoContentResult();
+            return new ObjectResult(new Response<User>("MD200", "Deletion successfull", null));
         }
     }
 }
