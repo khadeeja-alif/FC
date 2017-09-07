@@ -7,6 +7,7 @@ using MySQL.Data.EntityFrameworkCore.Extensions;
 using FC.Models;
 using System.Text.RegularExpressions;
 using System;
+using FC.Middlewares;
 
 namespace FC
 {
@@ -17,7 +18,7 @@ namespace FC
             var builder = new ConfigurationBuilder()
                 .SetBasePath(env.ContentRootPath)
                 .AddJsonFile("appsettings.json", optional: false, reloadOnChange: true)
-                .AddJsonFile("config.json", optional: true,reloadOnChange:true)
+                .AddJsonFile("config.json", optional: true, reloadOnChange:true)
                 .AddEnvironmentVariables();
             Configuration = builder.Build();
         }
@@ -29,7 +30,9 @@ namespace FC
         {
             // Add framework services.
             //services.AddDbContext<UserContext>(opt => opt.UseInMemoryDatabase());
+            services.AddSingleton(Configuration);
             services.AddMvc();
+            
 #if DEBUG
             var sqlConnectionString = Configuration.GetConnectionString("DataAccessMySqlProvider");
 #else
@@ -69,6 +72,7 @@ namespace FC
         {
             loggerFactory.AddConsole(Configuration.GetSection("Logging"));
             loggerFactory.AddDebug();
+            app.UseApiAuthenticationExtension();
             //if(env.IsDevelopment())
             //{
                 app.UseDeveloperExceptionPage();

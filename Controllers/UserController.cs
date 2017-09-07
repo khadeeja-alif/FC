@@ -1,9 +1,12 @@
 ﻿using FC.Models;
 using Microsoft.AspNetCore.Mvc;
+using Microsoft.Extensions.Configuration;
 using System;
 using System.Collections.Generic;
 using System.Linq;
+using FC.Helpers;
 using System.Threading.Tasks;
+using FC.Filters;
 
 namespace FC.Controllers
 {
@@ -11,10 +14,12 @@ namespace FC.Controllers
     public class UserController : Controller
     {
         private readonly UserContext _context;
+        private IConfigurationRoot _config;
 
-        public UserController(UserContext context)
+        public UserController(UserContext context, IConfigurationRoot config)
         {
             _context = context;
+            _config = config;
           
             if(_context.Users.Count()==0)
             {
@@ -54,11 +59,11 @@ namespace FC.Controllers
         }
 
         [HttpPut("authenticate")]
-        public IActionResult GetById([FromBody] User user)
+        public IActionResult Login([FromBody] User user)
         {
             if (user.username == null || user.password == null)
             {
-                return new ObjectResult(new Response<User>("UC100", "Insuficient data", null));
+                return new ObjectResult(new Response<User>("UC100", "Insuficient data", null,null));
             }
             var item = _context.Users.FirstOrDefault(t => t.username == user.username && t.password==user.password);
             if(item==null)
@@ -67,27 +72,28 @@ namespace FC.Controllers
                 return new ObjectResult(new Response<User>("UC300", "User not found", null));
             }
             //return new ObjectResult(item);
-            return new ObjectResult(new Response<User>("UC200", "User found", item));
+            //var key = _config["jwtSecretKey"];
+            var token = CheckClaim.GetToken(user,_config);
+            return new ObjectResult(new Response<User>("UC200", "User found", item,token));
         }
-        [HttpPut("{name}")]
-        public IActionResult Update([FromBody]User user,string name)
+
+        [HttpPut("update")]
+        [UserAuthenticator("id")]
+        public IActionResult Update([FromBody]User user)
         {
             if (user == null)
             {
                 //return BadRequest();
                 return new ObjectResult(new Response<User>("UD100", "Insufficient data", null));
             }
-            else if (user.name != name)
+            else if (_context.Users.FirstOrDefault(t=>t.id==user.id)==null)
             {
                 return new ObjectResult(new Response<User>("UD400", "Invalid data", null));
             }
             else
             {
-                var gotuser = _context.Users.FirstOrDefault(t => t.name == name);
-                if (gotuser == null)
-                {
-                    return new ObjectResult(new Response<User>("UD300", "User not found", null));
-                }
+                var gotuser = _context.Users.FirstOrDefault(t => t.id == user.id);
+                
                 gotuser.name = user.name;
                 gotuser.username = user.username;
                 gotuser.password = user.password;
@@ -99,6 +105,7 @@ namespace FC.Controllers
         }
 
         [HttpDelete("{id}")]
+        [UserAuthenticator("id")]
         public IActionResult Delete(int id)
         {
             var gotuser= _context.Users.First(t => t.id == id);
