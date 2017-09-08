@@ -35,5 +35,27 @@ namespace FC.Helpers
             var encodedJwt = new JwtSecurityTokenHandler().WriteToken(jwt);
             return encodedJwt;
         }
+
+        public static string GetApiToken(IConfigurationRoot config)
+        {
+            var claims = new List<Claim>
+             {
+                 new Claim("API_KEY",config["API_KEY"])
+             };
+            var signingKey = new SymmetricSecurityKey(Encoding.ASCII.GetBytes(config["jwtSecretKey"]));
+
+            var jwt = new JwtSecurityToken(
+               issuer: config["issuer"],
+               audience: config["audience"],
+               claims: claims,
+               //notBefore: DateTime.UtcNow,
+              // expires: DateTime.UtcNow.Add(TimeSpan.FromDays(365)),
+               signingCredentials: new SigningCredentials(signingKey, SecurityAlgorithms.HmacSha256)
+            );
+
+            var encodedJwt = new JwtSecurityTokenHandler().WriteToken(jwt);
+            return encodedJwt;
+        }
+
     }
 }

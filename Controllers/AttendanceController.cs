@@ -1,4 +1,5 @@
-﻿using FC.Models;
+﻿using FC.Filters;
+using FC.Models;
 using Microsoft.AspNetCore.Mvc;
 using System;
 using System.Collections.Generic;
@@ -8,13 +9,16 @@ using System.Threading.Tasks;
 namespace FC.Controllers
 {
     [Route("api/attendance")]
+   // [ApiAuthenticator("API_KEY")]
     public class AttendanceController : Controller
     {
-        private readonly AttendanceContext _context;
+        private AttendanceContext _context;
+        private UserContext _contextUser;
 
-        public AttendanceController(AttendanceContext context)
+        public AttendanceController(AttendanceContext context, UserContext contextuser)
         {
             _context = context;
+            _contextUser = contextuser;
 
             if (_context.Attendances.Count() == 0)
             {
@@ -23,39 +27,60 @@ namespace FC.Controllers
             }
         }
 
-        [HttpGet("{id}")]
-        public IActionResult GetbyId(int id)
+        [HttpGet("{userid}")]
+        public IActionResult GetbyId(int userid)
         {
-            var item = _context.Attendances.FirstOrDefault(t => t.id == id);
-            if (item == null)
-            {
-                return NotFound();
-            }
-            return new ObjectResult(item);
-        }
-
-        [HttpPost("checkin/{userid}")]
-        public IActionResult CheckIn(int userid)
-        {
+            //var _token = HttpContext.User.FindFirst(t => t.Type == "id");
+            //var userid = Convert.ToInt32(_token);
             try
             {
+                var item = _context.Attendances.ToList().FirstOrDefault(t => t.userid == userid);
+                if (item == null)
+                {
+                    return new ObjectResult(new Response<Attendance>("AC300", "No attendance found", null));
+                }
+                return new ObjectResult(new Response<Attendance>("AC200", "Attendance for the user found", item));
+            }
+            catch (Exception ex)
+            {
+                return new ObjectResult(new Response<Attendance>("AC400", "Error:" + ex.Message, null));
+            }
+
+        }       
+
+
+        [HttpPost("checkin")]
+        [UserAuthenticator("id")]
+        public IActionResult CheckIn()
+        {
+            var _token = HttpContext.User.FindFirst(t => t.Type == "id");
+            var userid = Convert.ToInt32(_token.Value);
+            try
+            {
+                var check = _contextUser.Users.FirstOrDefault(t => t.id == userid);
+                if (check == null)
+                {
+                    return new ObjectResult(new Response<Attendance>("AA100", "No user found", null));
+                }
                 var item = _context.Attendances.FirstOrDefault(t => t.userid == userid && t.date == DateTime.UtcNow.Date);
                 if (item == null)
                 {
-                    var attendance = new Attendance();
-                    attendance.userid = userid;
-                    attendance.date = DateTime.UtcNow.Date;
-                    attendance.firstcheckin = DateTime.UtcNow;
+                    var attendance = new Attendance
+                    {
+                        userid = userid,
+                        date = DateTime.UtcNow.Date,
+                        firstcheckin = DateTime.UtcNow
+                    };
                     _context.Attendances.Add(attendance);
                     item = attendance;
                 }
                 else if (item.secondcheckout!= DateTime.MinValue)
                 {
-                    return new ObjectResult(new Response<Attendance>("AA300", "Limitst exceeded", null));
+                    return new ObjectResult(new Response<Attendance>("AA300", "Limits exceeded", null));
                 }
                 else if (item.secondcheckin != DateTime.MinValue)
                 {
-                    return new ObjectResult(new Response<Attendance>("AA301", "Please check in", null));
+                    return new ObjectResult(new Response<Attendance>("AA301", "Please check out", null));
                 }
                 else if(item.firstcheckout != DateTime.MinValue)
                 {
@@ -68,7 +93,7 @@ namespace FC.Controllers
                 }
 
                 _context.SaveChanges();
-                return new ObjectResult(new Response<Attendance>("AA100", "Checked out succeffully", item));
+                return new ObjectResult(new Response<Attendance>("AA200", "Checked in succeffully", item));
             }
             catch (Exception ex)
             {
@@ -76,15 +101,23 @@ namespace FC.Controllers
             }
         }
 
-        [HttpPost("checkout/{userid}")]
-        public IActionResult CheckOut(int userid)
+        [HttpPost("checkout")]
+        [UserAuthenticator("id")]
+        public IActionResult CheckOut()
         {
+            var _token = HttpContext.User.FindFirst(t => t.Type == "id");
+            var userid = Convert.ToInt32(_token.Value);
             try
             {
+                var check = _contextUser.Users.FirstOrDefault(t => t.id == userid);
+                if (check == null)
+                {
+                    return new ObjectResult(new Response<Attendance>("AB100", "No user found", null));
+                }
                 var item = _context.Attendances.FirstOrDefault(t => t.userid == userid && t.date == DateTime.UtcNow.Date);
                 if (item == null)
                 {
-                    return new ObjectResult(new Response<Attendance>("AA300", "No check ins found", null));
+                    return new ObjectResult(new Response<Attendance>("AB302", "No check ins yet", null));
                 }
                 else if (item.secondcheckout != DateTime.MinValue)
                 {
@@ -106,18 +139,19 @@ namespace FC.Controllers
                 }
                 else
                 {
-                    return new ObjectResult(new Response<Attendance>("AA300", "No check ins found", null));
+                    return new ObjectResult(new Response<Attendance>("AB303", "No check ins found", null));
                 }
                 _context.SaveChanges();
-                return new ObjectResult(new Response<Attendance>("AA100", "Checked in succeffully", item));
+                return new ObjectResult(new Response<Attendance>("AB200", "Checked out succeffully", item));
             }
             catch (Exception ex)
             {
-                return new ObjectResult(new Response<Attendance>("AA400", "Error:" + ex.Message, null));
+                return new ObjectResult(new Response<Attendance>("AB400", "Error:" + ex.Message, null));
             }
         }
 
         [HttpPost]
+        [UserAuthenticator("id")]
         public IActionResult NewRecord([FromBody]Attendance attendance)
         {
             if (attendance == null)

@@ -15,5 +15,6 @@ namespace FC.Models
 
         }
         public DbSet<User> Users { get; set; }
+       // public DbSet<Attendance> Attendances { get; set; }
     }
 }

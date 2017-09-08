@@ -6,11 +6,11 @@ using System.Threading.Tasks;
 
 namespace FC.Middlewares
 {
-    public static class UserAuthenticationMiddlewareExtension
+    public static class ApiAuthenticationMiddlewareExtension
     {
         public static IApplicationBuilder UseApiAuthenticationExtension(this IApplicationBuilder app)
         {
-            return app.UseMiddleware<UserAuthenticationMiddleware>();
+            return app.UseMiddleware<ApiAuthenticationMiddleware>();
         }
     }
 }

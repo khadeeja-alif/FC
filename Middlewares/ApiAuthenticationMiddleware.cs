@@ -10,12 +10,12 @@ using System.Threading.Tasks;
 
 namespace FC.Middlewares
 {
-    public class UserAuthenticationMiddleware
+    public class ApiAuthenticationMiddleware
     {
         private readonly RequestDelegate _next;
         private IConfigurationRoot _config;
         private TokenValidationParameters validationParameters;
-        public UserAuthenticationMiddleware(RequestDelegate next, IConfigurationRoot config)
+        public ApiAuthenticationMiddleware(RequestDelegate next, IConfigurationRoot config)
         {
             _next = next;
             _config = config;
@@ -27,40 +27,40 @@ namespace FC.Middlewares
                 // The signing key must match!
                 ValidateIssuerSigningKey = true,
                 IssuerSigningKey = new SymmetricSecurityKey(Encoding.ASCII.GetBytes(key)),
-                                
+
                 // Validate the JWT Issuer (iss) claim
                 ValidateIssuer = true,
                 ValidIssuer = issuer,
 
-                
+
                 // Validate the JWT Audience (aud) claim
                 ValidateAudience = true,
                 ValidAudience = audience,
 
                 // Validate the token expiry
-                ValidateLifetime = true,
+                ValidateLifetime = false,
 
                 // If you want to allow a certain amount of clock drift, set that here:
-                ClockSkew = TimeSpan.Zero
+                //ClockSkew = TimeSpan.Zero
             };
         }
 
         public Task Invoke(HttpContext context)
         {
-            if (context.Request.Headers.ContainsKey("Authorization"))
+            if (context.Request.Headers.ContainsKey("API_KEY"))
             {
-                string bearer = context.Request.Headers["Authorization"];
+                string ApiKey = context.Request.Headers["API_KEY"];
                 var handler = new JwtSecurityTokenHandler();
                 ClaimsPrincipal principal = null;
                 SecurityToken validToken = null;
                 try
                 {
-                    if (bearer.StartsWith("Bearer ", StringComparison.OrdinalIgnoreCase))
+                    if (ApiKey.StartsWith("ApiKey ", StringComparison.OrdinalIgnoreCase))
                     {
-                        bearer = bearer.Substring("Bearer ".Length).Trim();
+                        ApiKey = ApiKey.Substring("ApiKey ".Length).Trim();
                     }
 
-                    principal = handler.ValidateToken(bearer, this.validationParameters, out validToken);
+                    principal = handler.ValidateToken(ApiKey, this.validationParameters, out validToken);
 
                     var validJwt = validToken as JwtSecurityToken;
 
