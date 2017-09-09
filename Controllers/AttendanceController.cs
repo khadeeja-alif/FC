@@ -27,14 +27,14 @@ namespace FC.Controllers
             }
         }
 
-        [HttpGet("{userid}")]
-        public IActionResult GetbyId(int userid)
+        [HttpGet("today/{userid}")]
+        public IActionResult GetToday(int userid)
         {
             //var _token = HttpContext.User.FindFirst(t => t.Type == "id");
             //var userid = Convert.ToInt32(_token);
             try
             {
-                var item = _context.Attendances.ToList().FirstOrDefault(t => t.userid == userid);
+                var item = _context.Attendances.ToList().FirstOrDefault(t => t.userid == userid && t.date == DateTime.UtcNow.Date);
                 if (item == null)
                 {
                     return new ObjectResult(new Response<Attendance>("AC300", "No attendance found", null));
