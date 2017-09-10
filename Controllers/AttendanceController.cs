@@ -49,7 +49,7 @@ namespace FC.Controllers
         }       
 
 
-        [HttpPost("checkin")]
+        [HttpGet("checkin")]
         [UserAuthenticator("id")]
         public IActionResult CheckIn()
         {
@@ -101,7 +101,7 @@ namespace FC.Controllers
             }
         }
 
-        [HttpPost("checkout")]
+        [HttpGet("checkout")]
         [UserAuthenticator("id")]
         public IActionResult CheckOut()
         {
