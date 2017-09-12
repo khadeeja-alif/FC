@@ -16,8 +16,7 @@ namespace FC
     public class Startup
     {
         public Startup(IHostingEnvironment env)
-        {
-            
+        {            
                 var builder = new ConfigurationBuilder()
                     .SetBasePath(env.ContentRootPath)
                     .AddJsonFile("appsettings.json", optional: false, reloadOnChange: true)
@@ -78,7 +77,7 @@ namespace FC
         {
             loggerFactory.AddConsole(Configuration.GetSection("Logging"));
             loggerFactory.AddDebug();
-            //app.UseApiAuthenticationExtension();
+            app.UseApiAuthenticationExtension();
             app.UseUserAuthenticationExtension();
             //if(env.IsDevelopment())
             //{

@@ -80,7 +80,7 @@ namespace FC.Controllers
                 }
                 else if (item.secondcheckin != DateTime.MinValue)
                 {
-                    return new ObjectResult(new Response<Attendance>("AA301", "Please check out", null));
+                    return new ObjectResult(new Response<Attendance>("AA301", "Please check-out", null));
                 }
                 else if(item.firstcheckout != DateTime.MinValue)
                 {
@@ -89,11 +89,11 @@ namespace FC.Controllers
                 }
                 else
                 {
-                    return new ObjectResult(new Response<Attendance>("AA302", "Check out first to check in", null));
+                    return new ObjectResult(new Response<Attendance>("AA302", "Check-out first to check-in", null));
                 }
 
                 _context.SaveChanges();
-                return new ObjectResult(new Response<Attendance>("AA200", "Checked in succeffully", item));
+                return new ObjectResult(new Response<Attendance>("AA200", "Checked-in successfully", item));
             }
             catch (Exception ex)
             {
@@ -117,7 +117,7 @@ namespace FC.Controllers
                 var item = _context.Attendances.FirstOrDefault(t => t.userid == userid && t.date == DateTime.UtcNow.Date);
                 if (item == null)
                 {
-                    return new ObjectResult(new Response<Attendance>("AB302", "No check ins yet", null));
+                    return new ObjectResult(new Response<Attendance>("AB302", "No check-in yet", null));
                 }
                 else if (item.secondcheckout != DateTime.MinValue)
                 {
@@ -130,7 +130,7 @@ namespace FC.Controllers
                 }
                 else if(item.firstcheckout!=DateTime.MinValue)
                 {
-                    return new ObjectResult(new Response<Attendance>("AB301", "Please check in", null));
+                    return new ObjectResult(new Response<Attendance>("AB301", "Please check-in", null));
                 }
                 else if(item.firstcheckin!=DateTime.MinValue)
                 {
@@ -139,10 +139,10 @@ namespace FC.Controllers
                 }
                 else
                 {
-                    return new ObjectResult(new Response<Attendance>("AB303", "No check ins found", null));
+                    return new ObjectResult(new Response<Attendance>("AB303", "No check-in found", null));
                 }
                 _context.SaveChanges();
-                return new ObjectResult(new Response<Attendance>("AB200", "Checked out succeffully", item));
+                return new ObjectResult(new Response<Attendance>("AB200", "Checked-out successfully", item));
             }
             catch (Exception ex)
             {

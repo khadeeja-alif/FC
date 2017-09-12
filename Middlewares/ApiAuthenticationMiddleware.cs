@@ -13,78 +13,45 @@ namespace FC.Middlewares
     public class ApiAuthenticationMiddleware
     {
         private readonly RequestDelegate _next;
-        private IConfigurationRoot _config;
-        private TokenValidationParameters validationParameters;
+        private string  _key;
+        //private TokenValidationParameters validationParameters;
         public ApiAuthenticationMiddleware(RequestDelegate next, IConfigurationRoot config)
         {
             _next = next;
-            _config = config;
-            var key = _config["jwtSecretKey"];
-            var issuer = _config["issuer"];
-            var audience = _config["audience"];
-            validationParameters = new TokenValidationParameters
-            {
-                // The signing key must match!
-                ValidateIssuerSigningKey = true,
-                IssuerSigningKey = new SymmetricSecurityKey(Encoding.ASCII.GetBytes(key)),
-
-                // Validate the JWT Issuer (iss) claim
-                ValidateIssuer = true,
-                ValidIssuer = issuer,
-
-
-                // Validate the JWT Audience (aud) claim
-                ValidateAudience = true,
-                ValidAudience = audience,
-
-                // Validate the token expiry
-                ValidateLifetime = false,
-
-                // If you want to allow a certain amount of clock drift, set that here:
-                //ClockSkew = TimeSpan.Zero
-            };
-        }
+            _key = config["API-KEY"];
+           
+          }
 
         public Task Invoke(HttpContext context)
         {
-            if (context.Request.Headers.ContainsKey("API_KEY"))
+            if (context.Request.Headers.ContainsKey("API-KEY"))
             {
-                string ApiKey = context.Request.Headers["API_KEY"];
-                var handler = new JwtSecurityTokenHandler();
-                ClaimsPrincipal principal = null;
-                SecurityToken validToken = null;
+                string key = context.Request.Headers["API-KEY"];
                 try
                 {
-                    if (ApiKey.StartsWith("ApiKey ", StringComparison.OrdinalIgnoreCase))
+                    if (key != _key)
                     {
-                        ApiKey = ApiKey.Substring("ApiKey ".Length).Trim();
+                        context.Response.StatusCode = 401;
+                        return context.Response.WriteAsync("Authentication failed");
+                    }
+                    else
+                    {
+                        return _next(context);
                     }
 
-                    principal = handler.ValidateToken(ApiKey, this.validationParameters, out validToken);
-
-                    var validJwt = validToken as JwtSecurityToken;
-
-                    if (validJwt == null)
-                    {
-                        throw new ArgumentException("Invalid JWT");
-                    }
-
-                    //ClaimsPrincipal claimsPrincipal = new ClaimsPrincipal(new ClaimsIdentity(validJwt.Claims));
-                    context.User = principal;
-
-                    return this._next(context);
 
                 }
-                catch (SecurityTokenValidationException)
+                catch (Exception)
                 {
-                    return this._next(context);
-                }
-                catch (ArgumentException)
-                {
-                    return this._next(context);
+                    context.Response.StatusCode = 401;
+                    return context.Response.WriteAsync("Authentication failed");
                 }
             }
-            return this._next(context);
+            else
+            {
+                context.Response.StatusCode = 401;
+                return context.Response.WriteAsync("Authentication failed");
+            }
         }
     }
 }
